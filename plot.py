@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.2.0'
+__version__ = 'v0.3.0'
 __author__ = 'fsmosca'
 __script_name__ = 'Eval and Time Game Plotter'
 __goal__ = 'Read pgn file and save eval and time plot per game.'
@@ -36,13 +36,14 @@ from chess.engine import Mate
 
 
 class GameInfoPlotter:
-    def __init__(self, input_pgn, width=6, height=4, min_eval_limit=-10, max_eval_limit=10, dpi=200):
+    def __init__(self, input_pgn, width=6, height=4, min_eval_limit=-10, max_eval_limit=10, dpi=200, tcec=False):
         self.input_pgn = input_pgn
         self.fig_width = width
         self.fig_height = height
         self.min_eval = min_eval_limit
         self.max_eval = max_eval_limit
         self.dpi = dpi
+        self.tcec = tcec
 
         plt.figure(figsize=(self.fig_width, self.fig_height))
         plt.rc('legend', **{'fontsize': 6})
@@ -53,6 +54,7 @@ class GameInfoPlotter:
         """
         ev = game.headers['Event']
         da = game.headers['Date']
+        rd = game.headers['Round']
         wp = game.headers['White']
         bp = game.headers['Black']
         res = game.headers['Result']
@@ -66,31 +68,50 @@ class GameInfoPlotter:
             fmvn = parent_board.fullmove_number
             ply = parent_board.ply()
 
-            if comment == 'book':
+            if 'book' in comment.lower():
                 eval = 0.0
                 tv = 0.0
             else:
-                if '+M' in comment or '-M' in comment:
-                    mate_num = int(comment.split('/')[0].split('M')[1])
-                    eval = Mate(mate_num).score(mate_score=32000)
-                    eval = (eval if '+M' in comment else -eval) / 100
-                elif comment == '':
-                    eval = 0.0
-                else:
-                    try:
-                        eval = float(comment.split('/')[0])
-                    except ValueError:
-                        eval = 0.0
+                if self.tcec:
+                    # Mate score
+                    value = comment.split('wv=')[1].split(',')[0]
+                    if 'M' in value:
+                        eval = 1000
+                        eval = eval if parent_board.turn else -eval
+                    else:
+                        eval = float(comment.split('wv=')[1].split(',')[0])
+                        eval = eval if parent_board.turn else -eval
 
-                # Get time.
-                # +13.30/12 0.020s
-                if comment == '':
-                    tv = 0.0
-                else:
-                    try:
-                        tv = float(comment.split()[1].split('s')[0])
-                    except ValueError:
+                    # Get time
+                    if 'book' in comment.lower():
                         tv = 0.0
+                    else:
+                        tv = int(comment.split('mt=')[1].split(',')[0])
+                        tv = tv//1000
+
+                # Cutechess
+                else:
+                    if '+M' in comment or '-M' in comment:
+                        mate_num = int(comment.split('/')[0].split('M')[1])
+                        eval = Mate(mate_num).score(mate_score=32000)
+                        eval = (eval if '+M' in comment else -eval) / 100
+                    elif comment == '':
+                        eval = 0.0
+                    else:
+                        try:
+                            eval = float(comment.split('/')[0])
+                        except ValueError:
+                            eval = 0.0
+
+                    # Get time.
+                    # +13.30/12 0.020s
+                    if comment == '':
+                        tv = 0.0
+                    else:
+                        try:
+                            tv = float(comment.split()[1].split('s')[0])
+                        except ValueError:
+                            tv = 0.0
 
             # Black
             if ply % 2:
@@ -105,7 +126,7 @@ class GameInfoPlotter:
 
         fig, ax = plt.subplots(2, sharex=True)
 
-        fig.suptitle(f'{wp} vs {bp}\n{ev}, {da}, {res}', fontsize=8)
+        fig.suptitle(f'{wp} vs {bp}\n{ev}, {da}, Round: {rd}, {res}', fontsize=8)
 
         # Array should have the same size.
         if len(x) > len(y1):
@@ -203,6 +224,9 @@ def main():
                         required=False, type=int,
                         default=200,
                         help='dots per in inch resolution, default=200.')
+    parser.add_argument('--tcec',
+                        action='store_true',
+                        help='Use this flag if pgn is from tcec, tested on s19-sf.')
     parser.add_argument('-v', '--version', action='version',
                         version=f'{__version__}')
 
@@ -214,7 +238,8 @@ def main():
         height=args.figure_size_height,
         min_eval_limit=args.min_eval_limit,
         max_eval_limit=args.max_eval_limit,
-        dpi=args.dpi)
+        dpi=args.dpi,
+        tcec=args.tcec)
 
     a.run()
 
