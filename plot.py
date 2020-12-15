@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.3.0'
+__version__ = 'v0.3.1'
 __author__ = 'fsmosca'
 __script_name__ = 'Eval and Time Game Plotter'
 __goal__ = 'Read pgn file and save eval and time plot per game.'
@@ -31,6 +31,7 @@ import argparse
 import time
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import chess.pgn
 from chess.engine import Mate
 
@@ -171,6 +172,9 @@ class GameInfoPlotter:
 
         for i in range(2):
             ax[i].grid(linewidth=0.1)
+
+        tick_spacing = 1 + len(x) // 20
+        ax[0].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
 
         plt.grid(linewidth=0.1)
 
