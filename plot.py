@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.1.0'
+__version__ = 'v0.2.0'
 __author__ = 'fsmosca'
 __script_name__ = 'Eval and Time Game Plotter'
 __goal__ = 'Read pgn file and save eval and time plot per game.'
@@ -44,13 +44,13 @@ class GameInfoPlotter:
         self.max_eval = max_eval_limit
         self.dpi = dpi
 
+        plt.figure(figsize=(self.fig_width, self.fig_height))
+        plt.rc('legend', **{'fontsize': 6})
+
     def plotter(self, game, outputfn):
         """
         Read game get eval in the move comment and plot it.
         """
-        plt.figure(figsize=(self.fig_width, self.fig_height))
-        plt.rc('legend', **{'fontsize': 6})
-
         ev = game.headers['Event']
         da = game.headers['Date']
         wp = game.headers['White']
@@ -74,12 +74,23 @@ class GameInfoPlotter:
                     mate_num = int(comment.split('/')[0].split('M')[1])
                     eval = Mate(mate_num).score(mate_score=32000)
                     eval = (eval if '+M' in comment else -eval) / 100
+                elif comment == '':
+                    eval = 0.0
                 else:
-                    eval = float(comment.split('/')[0])
+                    try:
+                        eval = float(comment.split('/')[0])
+                    except ValueError:
+                        eval = 0.0
 
                 # Get time.
                 # +13.30/12 0.020s
-                tv = float(comment.split()[1].split('s')[0])
+                if comment == '':
+                    tv = 0.0
+                else:
+                    try:
+                        tv = float(comment.split()[1].split('s')[0])
+                    except ValueError:
+                        tv = 0.0
 
             # Black
             if ply % 2:
@@ -92,7 +103,7 @@ class GameInfoPlotter:
 
                 t2.append(tv)
 
-        fig, ax = plt.subplots(2, sharex=True, constrained_layout=True)
+        fig, ax = plt.subplots(2, sharex=True)
 
         fig.suptitle(f'{wp} vs {bp}\n{ev}, {da}, {res}', fontsize=8)
 
@@ -144,6 +155,8 @@ class GameInfoPlotter:
 
         plt.savefig(outputfn, dpi=self.dpi)
         # plt.show()
+
+        plt.close()
 
 
     def run(self):
