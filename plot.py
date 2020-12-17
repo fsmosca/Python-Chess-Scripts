@@ -21,8 +21,9 @@ Usage:
 """
 
 
-__version__ = 'v0.3.1'
+__version__ = 'v0.4.0'
 __author__ = 'fsmosca'
+__credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
 __goal__ = 'Read pgn file and save eval and time plot per game.'
 
@@ -46,7 +47,6 @@ class GameInfoPlotter:
         self.dpi = dpi
         self.tcec = tcec
 
-        plt.figure(figsize=(self.fig_width, self.fig_height))
         plt.rc('legend', **{'fontsize': 6})
 
     def plotter(self, game, outputfn):
@@ -125,7 +125,7 @@ class GameInfoPlotter:
 
                 t2.append(tv)
 
-        fig, ax = plt.subplots(2, sharex=True)
+        fig, ax = plt.subplots(2, sharex=True, figsize=(self.fig_width, self.fig_height))
 
         fig.suptitle(f'{wp} vs {bp}\n{ev}, {da}, Round: {rd}, {res}', fontsize=8)
 
