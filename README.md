@@ -10,5 +10,12 @@ Download and install [python](https://www.python.org/downloads/).
 pip install python-chess
 
 
-### B. Credits
+### Plot
+#### Command line:
+`python plot.py --input TCEC_Season_19_-_Superfinal.pgn --tcec`
+
+![plot1](https://i.imgur.com/scUzII5.png)
+
+
+### C. Credits
 [Python Chess](https://github.com/niklasf/python-chess)
