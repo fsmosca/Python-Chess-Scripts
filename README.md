@@ -10,7 +10,7 @@ Download and install [python](https://www.python.org/downloads/).
 pip install python-chess
 
 
-### Plot
+### B. Plot
 #### Command line:
 `python plot.py --input TCEC_Season_19_-_Superfinal.pgn --tcec`
 
