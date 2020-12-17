@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.5.0'
+__version__ = 'v0.6.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -43,7 +43,8 @@ PLOT_BG_COLOR = '#D8DFDF'
 class GameInfoPlotter:
     def __init__(self, input_pgn, width=6, height=4, min_eval_limit=-10,
                  max_eval_limit=10, dpi=200, tcec=False,
-                 plot_bg_color=PLOT_BG_COLOR):
+                 plot_bg_color=PLOT_BG_COLOR, white_line_color='white',
+                 black_line_color='black'):
         self.input_pgn = input_pgn
         self.fig_width = width
         self.fig_height = height
@@ -52,6 +53,8 @@ class GameInfoPlotter:
         self.dpi = dpi
         self.tcec = tcec
         self.plot_bg_color = plot_bg_color
+        self.white_line_color = white_line_color
+        self.black_line_color =black_line_color
 
         plt.rc('legend', **{'fontsize': 6})
 
@@ -144,11 +147,11 @@ class GameInfoPlotter:
             t2.append(0)
 
         line_width = 1.0
-        ax[0].plot(x, y2, color='white', linewidth=line_width, label=f'{wp}')
-        ax[0].plot(x, y1, color='black', linewidth=line_width, label=f'{bp}')
+        ax[0].plot(x, y2, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
+        ax[0].plot(x, y1, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
 
-        ax[1].plot(x, t2, color='white', linewidth=line_width, label=f'{wp}')
-        ax[1].plot(x, t1, color='black', linewidth=line_width, label=f'{bp}')
+        ax[1].plot(x, t2, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
+        ax[1].plot(x, t1, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
 
         ax[0].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
         ax[1].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
@@ -239,6 +242,14 @@ def main():
                         required=False, type=str,
                         default=PLOT_BG_COLOR,
                         help=f'Backgroud color of the plot, default={PLOT_BG_COLOR}.')
+    parser.add_argument('--white-line-color',
+                        required=False, type=str,
+                        default='white',
+                        help='The color of line for the white player, default=white.')
+    parser.add_argument('--black-line-color',
+                        required=False, type=str,
+                        default='black',
+                        help='The color of line for the black player, default=black.')
     parser.add_argument('--tcec',
                         action='store_true',
                         help='Use this flag if pgn is from tcec, tested on s19-sf.')
@@ -255,7 +266,9 @@ def main():
         max_eval_limit=args.max_eval_limit,
         dpi=args.dpi,
         tcec=args.tcec,
-        plot_bg_color=args.plot_bg_color)
+        plot_bg_color=args.plot_bg_color,
+        white_line_color=args.white_line_color,
+        black_line_color=args.black_line_color)
 
     a.run()
 
