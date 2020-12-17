@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.4.0'
+__version__ = 'v0.5.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -37,8 +37,13 @@ import chess.pgn
 from chess.engine import Mate
 
 
+PLOT_BG_COLOR = '#D8DFDF'
+
+
 class GameInfoPlotter:
-    def __init__(self, input_pgn, width=6, height=4, min_eval_limit=-10, max_eval_limit=10, dpi=200, tcec=False):
+    def __init__(self, input_pgn, width=6, height=4, min_eval_limit=-10,
+                 max_eval_limit=10, dpi=200, tcec=False,
+                 plot_bg_color=PLOT_BG_COLOR):
         self.input_pgn = input_pgn
         self.fig_width = width
         self.fig_height = height
@@ -46,6 +51,7 @@ class GameInfoPlotter:
         self.max_eval = max_eval_limit
         self.dpi = dpi
         self.tcec = tcec
+        self.plot_bg_color = plot_bg_color
 
         plt.rc('legend', **{'fontsize': 6})
 
@@ -137,12 +143,12 @@ class GameInfoPlotter:
             y2.append(y2[len(y2)-1])
             t2.append(0)
 
-        line_width = 0.75
-        ax[0].plot(x, y2, color='blue', linewidth=line_width, label=f'{wp}')
+        line_width = 1.0
+        ax[0].plot(x, y2, color='white', linewidth=line_width, label=f'{wp}')
         ax[0].plot(x, y1, color='black', linewidth=line_width, label=f'{bp}')
 
-        ax[1].plot(x, t2, color='#3498DB', linewidth=line_width, label=f'{wp}')
-        ax[1].plot(x, t1, color='#34495E', linewidth=line_width, label=f'{bp}')
+        ax[1].plot(x, t2, color='white', linewidth=line_width, label=f'{wp}')
+        ax[1].plot(x, t1, color='black', linewidth=line_width, label=f'{bp}')
 
         ax[0].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
         ax[1].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
@@ -176,7 +182,8 @@ class GameInfoPlotter:
         tick_spacing = 1 + len(x) // 20
         ax[0].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
 
-        plt.grid(linewidth=0.1)
+        ax[0].set_facecolor(self.plot_bg_color)
+        ax[1].set_facecolor(self.plot_bg_color)
 
         plt.savefig(outputfn, dpi=self.dpi)
         # plt.show()
@@ -228,6 +235,10 @@ def main():
                         required=False, type=int,
                         default=200,
                         help='dots per in inch resolution, default=200.')
+    parser.add_argument('--plot-bg-color',
+                        required=False, type=str,
+                        default=PLOT_BG_COLOR,
+                        help=f'Backgroud color of the plot, default={PLOT_BG_COLOR}.')
     parser.add_argument('--tcec',
                         action='store_true',
                         help='Use this flag if pgn is from tcec, tested on s19-sf.')
@@ -243,7 +254,8 @@ def main():
         min_eval_limit=args.min_eval_limit,
         max_eval_limit=args.max_eval_limit,
         dpi=args.dpi,
-        tcec=args.tcec)
+        tcec=args.tcec,
+        plot_bg_color=args.plot_bg_color)
 
     a.run()
 
