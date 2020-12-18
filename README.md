@@ -12,7 +12,9 @@ pip install python-chess
 
 ### B. Plot
 #### Command line:
-`python plot.py --input TCEC_Season_19_-_Superfinal.pgn --tcec --white-line-color yellow --black-line-color red --plot-bg-color "#01104C" --min-eval-limit -7 --max-eval-limit 7`
+Images will be found in PGN folder.
+
+`python plot.py --input ./PGN/TCEC_Season_19_-_Superfinal.pgn --tcec --white-line-color yellow --black-line-color red --plot-bg-color "#01104C" --min-eval-limit -7 --max-eval-limit 7`
 
 ![plot1](https://i.imgur.com/LAUSTQt.png)
 
