@@ -18,4 +18,5 @@ pip install python-chess
 
 
 ### C. Credits
-[Python Chess](https://github.com/niklasf/python-chess)
+* [Python Chess](https://github.com/niklasf/python-chess)
+* [TCEC](https://tcec-chess.com/)
