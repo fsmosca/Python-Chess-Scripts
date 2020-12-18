@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.7.0'
+__version__ = 'v0.7.1'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -150,8 +150,9 @@ class GameInfoPlotter:
                 t2.append(tv)
 
         fig, ax = plt.subplots(2, sharex=True, figsize=(self.fig_width, self.fig_height))
+        plt.subplots_adjust(top=0.85, hspace=0.3)
 
-        fig.suptitle(f'{wp} vs {bp}\n{ev}, {da}, Round: {rd}, {res}', fontsize=8)
+        fig.suptitle(f'{wp} vs {bp}\n{ev}, {da}, Round: {rd}, {res}\n', fontsize=8)
 
         # Array should have the same size.
         if len(x) > len(y1):
@@ -171,19 +172,19 @@ class GameInfoPlotter:
         ax[0].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
         ax[1].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
 
-        plt.setp(ax[0].get_xticklabels(), fontsize=6)
-        plt.setp(ax[0].get_yticklabels(), fontsize=6)
+        plt.setp(ax[0].get_xticklabels(), fontsize=5)
+        plt.setp(ax[0].get_yticklabels(), fontsize=5)
 
-        plt.setp(ax[1].get_xticklabels(), fontsize=6)
-        plt.setp(ax[1].get_yticklabels(), fontsize=6)
+        plt.setp(ax[1].get_xticklabels(), fontsize=5)
+        plt.setp(ax[1].get_yticklabels(), fontsize=5)
 
         ax[0].set_title('Evaluation', fontsize=8)
         ax[1].set_title('Elapse Time', fontsize=8)
 
-        ax[0].set_ylabel('Score in pawn unit', fontsize=6)
+        ax[0].set_ylabel('Score in pawn unit', fontsize=5)
 
-        ax[1].set_xlabel('Move number', fontsize=6)
-        ax[1].set_ylabel('movetime in sec', fontsize=6)
+        ax[1].set_xlabel('Move number', fontsize=5)
+        ax[1].set_ylabel('movetime in sec', fontsize=5)
 
         ax[0].legend(loc='best')
         ax[1].legend(loc='best')
