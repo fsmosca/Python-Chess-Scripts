@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.6.0'
+__version__ = 'v0.7.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -57,6 +57,21 @@ class GameInfoPlotter:
         self.black_line_color =black_line_color
 
         plt.rc('legend', **{'fontsize': 6})
+
+    def get_tick_spacing(self, miny, maxy):
+        tick_spacing = 0.05
+        y_abs = max(abs(miny), abs(maxy))
+
+        if y_abs >= 4:
+            tick_spacing = 1
+        elif y_abs >= 2:
+            tick_spacing = 0.5
+        elif y_abs >= 1:
+            tick_spacing = 0.25
+        elif y_abs >= 0.5:
+            tick_spacing = 0.1
+
+        return tick_spacing
 
     def plotter(self, game, outputfn):
         """
@@ -175,9 +190,14 @@ class GameInfoPlotter:
 
         miny1, miny2 = min(y1), min(y2)
         maxy1, maxy2 = max(y1), max(y2)
+        miny = min(miny1, miny2)
+        maxy = max(maxy1, maxy2)
+
+        tick_spacing = self.get_tick_spacing(miny, maxy)
+        ax[0].yaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
 
         # Set eval limit along y-axis.
-        ax[0].set_ylim(max(self.min_eval, min(miny1, miny2) - 0.5), min(self.max_eval, max(maxy1, maxy2) + 0.5))
+        ax[0].set_ylim(max(self.min_eval, min(miny1, miny2) - 0.01), min(self.max_eval, max(maxy1, maxy2) + 0.01))
 
         for i in range(2):
             ax[i].grid(linewidth=0.1)
