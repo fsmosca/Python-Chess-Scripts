@@ -12,7 +12,7 @@ pip install python-chess
 
 ### B. Plot
 #### Command line:
-`--input TCEC_Season_19_-_Superfinal.pgn --tcec --white-line-color yellow --black-line-color red --plot-bg-color "#01104C" --min-eval-limit -7 --max-eval-limit 7`
+`python plot.py --input TCEC_Season_19_-_Superfinal.pgn --tcec --white-line-color yellow --black-line-color red --plot-bg-color "#01104C" --min-eval-limit -7 --max-eval-limit 7`
 
 ![plot1](https://i.imgur.com/LAUSTQt.png)
 
