@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.7.1'
+__version__ = 'v0.8.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -43,7 +43,9 @@ PLOT_BG_COLOR = '#D8DFDF'
 class GameInfoPlotter:
     def __init__(self, input_pgn, width=6, height=4, min_eval_limit=-10,
                  max_eval_limit=10, dpi=200, tcec=False,
-                 plot_bg_color=PLOT_BG_COLOR, white_line_color='white',
+                 plot_eval_bg_color=PLOT_BG_COLOR,
+                 plot_time_bg_color=PLOT_BG_COLOR,
+                 white_line_color='white',
                  black_line_color='black'):
         self.input_pgn = input_pgn
         self.fig_width = width
@@ -52,7 +54,8 @@ class GameInfoPlotter:
         self.max_eval = max_eval_limit
         self.dpi = dpi
         self.tcec = tcec
-        self.plot_bg_color = plot_bg_color
+        self.plot_eval_bg_color = plot_eval_bg_color
+        self.plot_time_bg_color = plot_time_bg_color
         self.white_line_color = white_line_color
         self.black_line_color =black_line_color
 
@@ -206,8 +209,8 @@ class GameInfoPlotter:
         tick_spacing = 1 + len(x) // 20
         ax[0].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
 
-        ax[0].set_facecolor(self.plot_bg_color)
-        ax[1].set_facecolor(self.plot_bg_color)
+        ax[0].set_facecolor(self.plot_eval_bg_color)
+        ax[1].set_facecolor(self.plot_time_bg_color)
 
         plt.savefig(outputfn, dpi=self.dpi)
         # plt.show()
@@ -259,10 +262,14 @@ def main():
                         required=False, type=int,
                         default=200,
                         help='dots per in inch resolution, default=200.')
-    parser.add_argument('--plot-bg-color',
+    parser.add_argument('--plot-eval-bg-color',
                         required=False, type=str,
                         default=PLOT_BG_COLOR,
-                        help=f'Backgroud color of the plot, default={PLOT_BG_COLOR}.')
+                        help=f'Backgroud color of the eval plot, default={PLOT_BG_COLOR}.')
+    parser.add_argument('--plot-time-bg-color',
+                        required=False, type=str,
+                        default=PLOT_BG_COLOR,
+                        help=f'Backgroud color of the time plot, default={PLOT_BG_COLOR}.')
     parser.add_argument('--white-line-color',
                         required=False, type=str,
                         default='white',
@@ -287,7 +294,8 @@ def main():
         max_eval_limit=args.max_eval_limit,
         dpi=args.dpi,
         tcec=args.tcec,
-        plot_bg_color=args.plot_bg_color,
+        plot_eval_bg_color=args.plot_eval_bg_color,
+        plot_time_bg_color=args.plot_time_bg_color,
         white_line_color=args.white_line_color,
         black_line_color=args.black_line_color)
 
