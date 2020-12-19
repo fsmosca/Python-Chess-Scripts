@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.8.1'
+__version__ = 'v0.9.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -46,7 +46,9 @@ class GameInfoPlotter:
                  plot_eval_bg_color=PLOT_BG_COLOR,
                  plot_time_bg_color=PLOT_BG_COLOR,
                  white_line_color='white',
-                 black_line_color='black'):
+                 black_line_color='black',
+                 min_move_limit=None,
+                 max_move_limit=None):
         self.input_pgn = input_pgn
         self.fig_width = width
         self.fig_height = height
@@ -58,6 +60,8 @@ class GameInfoPlotter:
         self.plot_time_bg_color = plot_time_bg_color
         self.white_line_color = white_line_color
         self.black_line_color =black_line_color
+        self.min_move_limit = min_move_limit
+        self.max_move_limit = max_move_limit
 
         plt.rc('legend', **{'fontsize': 6})
 
@@ -203,11 +207,22 @@ class GameInfoPlotter:
         # Set eval limit along y-axis.
         ax[0].set_ylim(max(self.min_eval, min(miny1, miny2) - 0.01), min(self.max_eval, max(maxy1, maxy2) + 0.01))
 
+        # Set limits along x-axis for move numbers
+        if self.min_move_limit is None:
+            xmin = min(x) - 1
+        else:
+            xmin = self.min_move_limit - 1
+        if self.max_move_limit is None:
+            xmax = len(x) + 1
+        else:
+            xmax = self.max_move_limit + 1
+
+        xrange = min(max(x), xmax) - max(min(x), xmin)
+        ax[0].set_xlim(max(min(x), xmin), min(max(x), xmax))
+        ax[0].set_xticks(range(max(min(x), xmin), min(max(x), xmax), 1 + xrange//20))
+
         for i in range(2):
             ax[i].grid(linewidth=0.1)
-
-        tick_spacing = 1 + len(x) // 20
-        ax[0].xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
 
         ax[0].set_facecolor(self.plot_eval_bg_color)
         ax[1].set_facecolor(self.plot_time_bg_color)
@@ -258,6 +273,14 @@ def main():
                         required=False, type=int,
                         default=10,
                         help='minimum eval limit along y-axis in pawn unit, default=10.')
+    parser.add_argument('--min-move-limit',
+                        required=False, type=int,
+                        default=None,
+                        help='minimum move number limit along x-axis, default=None.')
+    parser.add_argument('--max-move-limit',
+                        required=False, type=int,
+                        default=None,
+                        help='maximum move number limit along x-axis, default=None.')
     parser.add_argument('--dpi',
                         required=False, type=int,
                         default=200,
@@ -297,7 +320,9 @@ def main():
         plot_eval_bg_color=args.plot_eval_bg_color,
         plot_time_bg_color=args.plot_time_bg_color,
         white_line_color=args.white_line_color,
-        black_line_color=args.black_line_color)
+        black_line_color=args.black_line_color,
+        min_move_limit=args.min_move_limit,
+        max_move_limit=args.max_move_limit)
 
     a.run()
 
