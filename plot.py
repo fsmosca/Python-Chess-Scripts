@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.8.0'
+__version__ = 'v0.8.1'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -37,7 +37,7 @@ import chess.pgn
 from chess.engine import Mate
 
 
-PLOT_BG_COLOR = '#D8DFDF'
+PLOT_BG_COLOR = '0.4'  # Gray shades, 0 to 1, 0 is darker.
 
 
 class GameInfoPlotter:
