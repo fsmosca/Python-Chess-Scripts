@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.9.0'
+__version__ = 'v0.9.1'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -157,9 +157,11 @@ class GameInfoPlotter:
                 t2.append(tv)
 
         fig, ax = plt.subplots(2, sharex=True, figsize=(self.fig_width, self.fig_height))
-        plt.subplots_adjust(top=0.85, hspace=0.3)
 
-        fig.suptitle(f'{wp} vs {bp}\n{ev}, {da}, Round: {rd}, {res}\n', fontsize=8)
+        plt.text(x=0.5, y=0.94, s=f"{wp} vs {bp}", fontsize=8, ha="center", transform=fig.transFigure)
+        plt.text(x=0.5, y=0.91, s=f"{ev}, {da}, Round: {rd}, {res}", fontsize=6, ha="center", transform=fig.transFigure)
+
+        plt.subplots_adjust(top=0.84, hspace=0.3)
 
         # Array should have the same size.
         if len(x) > len(y1):
@@ -185,8 +187,8 @@ class GameInfoPlotter:
         plt.setp(ax[1].get_xticklabels(), fontsize=5)
         plt.setp(ax[1].get_yticklabels(), fontsize=5)
 
-        ax[0].set_title('Evaluation', fontsize=8)
-        ax[1].set_title('Elapse Time', fontsize=8)
+        ax[0].set_title('Evaluation', fontsize=7)
+        ax[1].set_title('Elapse Time', fontsize=7)
 
         ax[0].set_ylabel('Score in pawn unit', fontsize=5)
 
