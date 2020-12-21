@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.9.1'
+__version__ = 'v0.10.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -80,6 +80,40 @@ class GameInfoPlotter:
 
         return tick_spacing
 
+    def get_time(self, comment, is_tcec=False):
+        """
+        Brackets are not included when reading comment below.
+
+        {+13.30/12 0.020s}
+        {0}
+        {0.001}
+        {0.002}
+        """
+        elapse_sec = 0.0
+
+        if comment == '':
+            return elapse_sec
+
+        # If pgn file file is from TCEC.
+        if is_tcec:
+            if 'book' in comment.lower():
+                elapse_sec = 0.0
+            else:
+                elapse_sec = int(comment.split('mt=')[1].split(',')[0])
+                elapse_sec = elapse_sec // 1000
+
+            return elapse_sec
+
+        # Cutechess
+        # One part split, {0} or {0.001}, assume it is time.
+        if len(comment.split()) == 1:
+            elapse_sec = float(comment.split('s')[0])
+        # Two parts split, {+13.30/12 0.020s}, eval/depth time
+        else:
+            elapse_sec = float(comment.split()[1].split('s')[0])
+
+        return elapse_sec
+
     def plotter(self, game, outputfn):
         """
         Read game get eval in the move comment and plot it.
@@ -115,11 +149,7 @@ class GameInfoPlotter:
                         eval = eval if parent_board.turn else -eval
 
                     # Get time
-                    if 'book' in comment.lower():
-                        tv = 0.0
-                    else:
-                        tv = int(comment.split('mt=')[1].split(',')[0])
-                        tv = tv//1000
+                    tv = self.get_time(comment, True)
 
                 # Cutechess
                 else:
@@ -136,14 +166,7 @@ class GameInfoPlotter:
                             eval = 0.0
 
                     # Get time.
-                    # +13.30/12 0.020s
-                    if comment == '':
-                        tv = 0.0
-                    else:
-                        try:
-                            tv = float(comment.split()[1].split('s')[0])
-                        except ValueError:
-                            tv = 0.0
+                    tv = self.get_time(comment)
 
             # Black
             if ply % 2:
