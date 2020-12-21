@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.13.0'
+__version__ = 'v0.14.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -80,14 +80,17 @@ class GameInfoPlotter:
 
         return tick_spacing
 
-    def get_eval(self, comment, turn):
+    def get_eval(self, comment, turn, ply, black_eval, white_eval):
         eval = 0.0
 
         if 'book' in comment.lower():
             return eval
-
-        # Todo: handle missing eval in the middle of the game.
+        
         if comment == '':
+            if ply % 2:
+                eval = -black_eval[-1]
+            else:
+                eval = white_eval[-1]
             return eval
 
         if self.tcec:
@@ -103,11 +106,14 @@ class GameInfoPlotter:
         # Cutechess
         else:
             # No eval/depth comment, just time.
-            # Todo: handle missing eval in the middle of the game.
             if len(comment.split()) == 1:
                 value = comment.split('s')[0]
+                # {0}
                 try:
-                    eval = float(value)
+                    if ply % 2:
+                        eval = -black_eval[-1]
+                    else:
+                        eval = white_eval[-1]
                 except ValueError:
                     pass
             elif '+M' in comment or '-M' in comment:
@@ -180,7 +186,7 @@ class GameInfoPlotter:
             fmvn = parent_board.fullmove_number
             ply = parent_board.ply()
 
-            eval = self.get_eval(comment, parent_board.turn)
+            eval = self.get_eval(comment, parent_board.turn, ply, y1, y2)
             tv = self.get_time(comment)
 
             # Black
