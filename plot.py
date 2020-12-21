@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.12.0'
+__version__ = 'v0.13.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -105,13 +105,19 @@ class GameInfoPlotter:
             # No eval/depth comment, just time.
             # Todo: handle missing eval in the middle of the game.
             if len(comment.split()) == 1:
-                pass
+                value = comment.split('s')[0]
+                try:
+                    eval = float(value)
+                except ValueError:
+                    pass
             elif '+M' in comment or '-M' in comment:
                 mate_num = int(comment.split('/')[0].split('M')[1])
                 eval = Mate(mate_num).score(mate_score=32000)
                 eval = (eval if '+M' in comment else -eval) / 100
             else:
-                eval = float(comment.split('/')[0])
+                # Not {White mates}
+                if '/' in comment:
+                    eval = float(comment.split('/')[0])
 
         return eval
 
@@ -141,10 +147,16 @@ class GameInfoPlotter:
         else:
             # One part split, {0} or {0.001}, assume it is time.
             if len(comment.split()) == 1:
-                elapse_sec = float(comment.split('s')[0])
+                value = comment.split('s')[0]
+                try:
+                    elapse_sec = float(value)
+                except ValueError:
+                    pass
             # Two parts split, {+13.30/12 0.020s}, eval/depth time
             else:
-                elapse_sec = float(comment.split()[1].split('s')[0])
+                # Not {White mates}
+                if '/' in comment:
+                    elapse_sec = float(comment.split()[1].split('s')[0])
 
         return elapse_sec
 
@@ -273,6 +285,8 @@ class GameInfoPlotter:
 
                 cnt += 1
                 output = f'{self.input_pgn[0:-4]}_{cnt}.png'
+
+                print(f'game: {cnt}')
 
                 self.plotter(game, output)
 
