@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.10.0'
+__version__ = 'v0.11.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -80,7 +80,38 @@ class GameInfoPlotter:
 
         return tick_spacing
 
-    def get_time(self, comment, is_tcec=False):
+    def get_eval(self, comment, turn):
+        eval = 0.0
+
+        if 'book' in comment.lower():
+            return eval
+
+        # Todo: handle missing eval in the middle of the game.
+        if comment == '':
+            return eval
+
+        if self.tcec:
+            value = comment.split('wv=')[1].split(',')[0]
+            # Todo: Get more accurate eval for mate scores.
+            if 'M' in value:
+                eval = 1000
+                eval = eval if turn else -eval
+            else:
+                eval = float(comment.split('wv=')[1].split(',')[0])
+                eval = eval if turn else -eval
+
+        # Cutechess
+        else:
+            if '+M' in comment or '-M' in comment:
+                mate_num = int(comment.split('/')[0].split('M')[1])
+                eval = Mate(mate_num).score(mate_score=32000)
+                eval = (eval if '+M' in comment else -eval) / 100
+            else:
+                eval = float(comment.split('/')[0])
+
+        return eval
+
+    def get_time(self, comment):
         """
         Brackets are not included when reading comment below.
 
@@ -91,26 +122,25 @@ class GameInfoPlotter:
         """
         elapse_sec = 0.0
 
+        if 'book' in comment.lower():
+            return elapse_sec
+
         if comment == '':
             return elapse_sec
 
         # If pgn file file is from TCEC.
-        if is_tcec:
-            if 'book' in comment.lower():
-                elapse_sec = 0.0
-            else:
-                elapse_sec = int(comment.split('mt=')[1].split(',')[0])
-                elapse_sec = elapse_sec // 1000
-
-            return elapse_sec
+        if self.tcec:
+            elapse_sec = int(comment.split('mt=')[1].split(',')[0])
+            elapse_sec = elapse_sec // 1000
 
         # Cutechess
-        # One part split, {0} or {0.001}, assume it is time.
-        if len(comment.split()) == 1:
-            elapse_sec = float(comment.split('s')[0])
-        # Two parts split, {+13.30/12 0.020s}, eval/depth time
         else:
-            elapse_sec = float(comment.split()[1].split('s')[0])
+            # One part split, {0} or {0.001}, assume it is time.
+            if len(comment.split()) == 1:
+                elapse_sec = float(comment.split('s')[0])
+            # Two parts split, {+13.30/12 0.020s}, eval/depth time
+            else:
+                elapse_sec = float(comment.split()[1].split('s')[0])
 
         return elapse_sec
 
@@ -134,39 +164,8 @@ class GameInfoPlotter:
             fmvn = parent_board.fullmove_number
             ply = parent_board.ply()
 
-            if 'book' in comment.lower():
-                eval = 0.0
-                tv = 0.0
-            else:
-                if self.tcec:
-                    # Mate score
-                    value = comment.split('wv=')[1].split(',')[0]
-                    if 'M' in value:
-                        eval = 1000
-                        eval = eval if parent_board.turn else -eval
-                    else:
-                        eval = float(comment.split('wv=')[1].split(',')[0])
-                        eval = eval if parent_board.turn else -eval
-
-                    # Get time
-                    tv = self.get_time(comment, True)
-
-                # Cutechess
-                else:
-                    if '+M' in comment or '-M' in comment:
-                        mate_num = int(comment.split('/')[0].split('M')[1])
-                        eval = Mate(mate_num).score(mate_score=32000)
-                        eval = (eval if '+M' in comment else -eval) / 100
-                    elif comment == '':
-                        eval = 0.0
-                    else:
-                        try:
-                            eval = float(comment.split('/')[0])
-                        except ValueError:
-                            eval = 0.0
-
-                    # Get time.
-                    tv = self.get_time(comment)
+            eval = self.get_eval(comment, parent_board.turn)
+            tv = self.get_time(comment)
 
             # Black
             if ply % 2:
