@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.11.0'
+__version__ = 'v0.12.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -102,7 +102,11 @@ class GameInfoPlotter:
 
         # Cutechess
         else:
-            if '+M' in comment or '-M' in comment:
+            # No eval/depth comment, just time.
+            # Todo: handle missing eval in the middle of the game.
+            if len(comment.split()) == 1:
+                pass
+            elif '+M' in comment or '-M' in comment:
                 mate_num = int(comment.split('/')[0].split('M')[1])
                 eval = Mate(mate_num).score(mate_score=32000)
                 eval = (eval if '+M' in comment else -eval) / 100
