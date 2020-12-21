@@ -1,0 +1,94 @@
+ADDITIONAL INFO for further refining of plot.py
+created 2020-12-21
+
+
+
+1. ENGINES which show no output for forced or easy moves
+--------------------------------------------------------
+
+KNOWN ENGINES:
+- Rybka 1.0b
+- Gaviota
+others (surely a few dozen)
+
+CUTECHESS still saves the time sometimes, either as
+{0s} or in the range {0.001s} - {0.004s}
+found no case with a time above {0.004s} yet
+
+=> plot.py 0.91 currrently will exit on those (TODO)
+
+
+
+2. XB ENGINES sending eval/depth info, while in OWN BOOK
+--------------------------------------------------------
+
+Saved from an old email (2005-12) for additional features in Winboard_AS (= Alessandro Scotti)
+=> led to the new Annotator tag, which saved out of book eval to the pgn header
+
+Output list/description:
+
+Celes (31337), Queen and Grizzly send +0.00/1
+Zappa sends +0.00/63
+Leila sends +0.01/2
+Abrok sends +0.02/99
+Ant sends +50.00/1 :)(smilie from me)
+Spider sends +0.00/variable depths
+FranMad sends variable score/1 or variable score/2
+Snitch sends variable score/1
+
+Pepito does a book search by default
+(Crafty can do this too but it is not by best/default setting)
+I guess we leave this out for now-just makes difficulties to workaround?
+(probably there is a string for being in book though, I could search for it)
+
+# irrelevant for py_plot - just don't use those. if you wann have graphs
+# (all others send nothing during book moves,
+# a very few send nothing _at all_ during the whole
+# game, like SnailChess and Knightcap...
+# ->perhaps representing zero info by a '-' or a '?'
+# in the new annotator tag?)
+
+One special case is left, which even makes trouble in current
+PGN info saving. I noticed it right now and also by mail from
+the author, who was astonished to see depth/scores already
+for move 1 in his games ;)
+This is Thinker, I have added a small debug excerpt below
+to show its behaviour, you can see it does a shallow pseudo
+ponder search for its book moves, which is output like
+normal search. With the move it sends a 'whisper' info
+with +0.00 though. It would be nice to save that whisper
+info or nothing, as long as it is in book I believe.
+
+2234 >second: g1f3
+2234 >second: black
+2234 >second: go
+2444 <second: clearing hash tables...
+2444 <second: pondering enabled
+2444 <second: pondering disabled
+2444 <second: pong 1
+2444 <second: Playing computer opponent
+2444 <second: Opponent:  Ayito_02994
+2444 <second: nmoves 40  t_move 0  xx 0  xxx 40  game move 0  search time 18.0 
+seconds
+2444 <second: tellics tell Tinker DxRxAxW Score Go 0
+2444 <second: tellics tell Tinker DxRxAxW Score think() 10
+2444 <second: tellics tell Tinker Initial search time:  18.00 (14:42)
+2444 <second: loaded 1 of 1 learned positions
+2824 <second: tellics tell Tinker 	c7c5 !   5449  47%  28%  23%   2351   34
+3135 <second:   8        4     72    117396  2.  d2d3  b8c6  3.  c1f4  g8f6  4.  
+e2e4  d7d6
+3225 <second:   8        5     81    160872  2.  d2d4
+3325 <second:   8       11     91    206693  2.  d2d4  c5d4  3.  f3d4  b8c6  4.  
+d4c6  b7c6
+4116 <second:   9        5    170    617290  2.  d2d4  c5d4  3.  f3d4  e7e5  4.  
+d4b5  d7d5
+4517 <second:   9        6    210    806997  2.  e2e4
+4667 <second: tellics tell Tinker Book score -5
+4667 <second: 
+4667 <second: move c7c5
+Interrupting first
+4667 >first : time 90000
+otim 89756
+4667 >first : c7c5
+4667 <second: tellics whisper +0.00 at 0(12/20) ply 2.25 secs 0 Knps pv: 1.  ...   
+c7c5
