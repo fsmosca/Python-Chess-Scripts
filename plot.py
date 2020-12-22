@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.14.4'
+__version__ = 'v0.14.5'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -30,6 +30,7 @@ __goal__ = 'Read pgn file and save eval and time plot per game.'
 
 import argparse
 import time
+from typing import List, Set, Dict, Tuple, Optional
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -80,7 +81,14 @@ class GameInfoPlotter:
 
         return tick_spacing
 
-    def get_eval(self, comment, turn, ply, black_eval, white_eval):
+    def get_eval(
+            self,
+            comment: str,
+            turn: bool,
+            ply: int,
+            black_eval: List[float],
+            white_eval: List[float]
+    ) -> float:
         move_eval = 0.0
 
         if 'book' in comment.lower():
