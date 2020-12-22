@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.14.1'
+__version__ = 'v0.14.2'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -177,7 +177,7 @@ class GameInfoPlotter:
         bp = game.headers['Black']
         res = game.headers['Result']
 
-        x, y1, y2, t1, t2 = [], [], [], [], []
+        move_num, y1, y2, t1, t2 = [], [], [], [], []
         for node in game.mainline():
             board = node.board()
             parent_node = node.parent
@@ -196,7 +196,7 @@ class GameInfoPlotter:
                 t1.append(tv)
             else:
                 y2.append(move_eval)
-                x.append(fmvn)
+                move_num.append(fmvn)
 
                 t2.append(tv)
 
@@ -208,19 +208,19 @@ class GameInfoPlotter:
         plt.subplots_adjust(top=0.84, hspace=0.3)
 
         # Array should have the same size.
-        if len(x) > len(y1):
+        if len(move_num) > len(y1):
             y1.append(y1[len(y1)-1])
             t1.append(0)
-        if len(x) > len(y2):
+        if len(move_num) > len(y2):
             y2.append(y2[len(y2)-1])
             t2.append(0)
 
         line_width = 1.0
-        ax[0].plot(x, y2, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
-        ax[0].plot(x, y1, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
+        ax[0].plot(move_num, y2, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
+        ax[0].plot(move_num, y1, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
 
-        ax[1].plot(x, t2, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
-        ax[1].plot(x, t1, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
+        ax[1].plot(move_num, t2, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
+        ax[1].plot(move_num, t1, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
 
         ax[0].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
         ax[1].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
@@ -255,17 +255,17 @@ class GameInfoPlotter:
 
         # Set limits along x-axis for move numbers
         if self.min_move_limit is None:
-            xmin = min(x) - 1
+            xmin = min(move_num) - 1
         else:
             xmin = self.min_move_limit - 1
         if self.max_move_limit is None:
-            xmax = len(x) + 1
+            xmax = len(move_num) + 1
         else:
             xmax = self.max_move_limit + 1
 
-        xrange = min(max(x), xmax) - max(min(x), xmin)
-        ax[0].set_xlim(max(min(x), xmin), min(max(x), xmax))
-        ax[0].set_xticks(range(max(min(x), xmin), min(max(x), xmax), 1 + xrange//20))
+        xrange = min(max(move_num), xmax) - max(min(move_num), xmin)
+        ax[0].set_xlim(max(min(move_num), xmin), min(max(move_num), xmax))
+        ax[0].set_xticks(range(max(min(move_num), xmin), min(max(move_num), xmax), 1 + xrange//20))
 
         for i in range(2):
             ax[i].grid(linewidth=0.1)
