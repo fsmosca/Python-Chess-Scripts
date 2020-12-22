@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.14.2'
+__version__ = 'v0.14.3'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -177,7 +177,7 @@ class GameInfoPlotter:
         bp = game.headers['Black']
         res = game.headers['Result']
 
-        move_num, y1, y2, t1, t2 = [], [], [], [], []
+        move_num, y1, y2, b_time, w_time = [], [], [], [], []
         for node in game.mainline():
             board = node.board()
             parent_node = node.parent
@@ -193,12 +193,12 @@ class GameInfoPlotter:
             if ply % 2:
                 # Positive eval is good for white while negative eval is good for black.
                 y1.append(-move_eval)
-                t1.append(tv)
+                b_time.append(tv)
             else:
                 y2.append(move_eval)
                 move_num.append(fmvn)
 
-                t2.append(tv)
+                w_time.append(tv)
 
         fig, ax = plt.subplots(2, sharex=True, figsize=(self.fig_width, self.fig_height))
 
@@ -210,17 +210,17 @@ class GameInfoPlotter:
         # Array should have the same size.
         if len(move_num) > len(y1):
             y1.append(y1[len(y1)-1])
-            t1.append(0)
+            b_time.append(0)
         if len(move_num) > len(y2):
             y2.append(y2[len(y2)-1])
-            t2.append(0)
+            w_time.append(0)
 
         line_width = 1.0
         ax[0].plot(move_num, y2, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
         ax[0].plot(move_num, y1, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
 
-        ax[1].plot(move_num, t2, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
-        ax[1].plot(move_num, t1, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
+        ax[1].plot(move_num, w_time, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
+        ax[1].plot(move_num, b_time, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
 
         ax[0].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
         ax[1].axhline(y=0.0, color='r', linestyle='-', linewidth=0.1)
