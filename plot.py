@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.14.3'
+__version__ = 'v0.14.4'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -187,18 +187,18 @@ class GameInfoPlotter:
             ply = parent_board.ply()
 
             move_eval = self.get_eval(comment, parent_board.turn, ply, y1, y2)
-            tv = self.get_time(comment)
+            time_elapse_sec = self.get_time(comment)
 
             # Black
             if ply % 2:
                 # Positive eval is good for white while negative eval is good for black.
                 y1.append(-move_eval)
-                b_time.append(tv)
+                b_time.append(time_elapse_sec)
             else:
                 y2.append(move_eval)
                 move_num.append(fmvn)
 
-                w_time.append(tv)
+                w_time.append(time_elapse_sec)
 
         fig, ax = plt.subplots(2, sharex=True, figsize=(self.fig_width, self.fig_height))
 
