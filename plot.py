@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.14.0'
+__version__ = 'v0.14.1'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -81,27 +81,27 @@ class GameInfoPlotter:
         return tick_spacing
 
     def get_eval(self, comment, turn, ply, black_eval, white_eval):
-        eval = 0.0
+        move_eval = 0.0
 
         if 'book' in comment.lower():
-            return eval
-        
+            return move_eval
+
         if comment == '':
             if ply % 2:
-                eval = -black_eval[-1]
+                move_eval = -black_eval[-1]
             else:
-                eval = white_eval[-1]
-            return eval
+                move_eval = white_eval[-1]
+            return move_eval
 
         if self.tcec:
             value = comment.split('wv=')[1].split(',')[0]
             # Todo: Get more accurate eval for mate scores.
             if 'M' in value:
-                eval = 1000
-                eval = eval if turn else -eval
+                move_eval = 1000
+                move_eval = move_eval if turn else -move_eval
             else:
-                eval = float(comment.split('wv=')[1].split(',')[0])
-                eval = eval if turn else -eval
+                move_eval = float(comment.split('wv=')[1].split(',')[0])
+                move_eval = move_eval if turn else -move_eval
 
         # Cutechess
         else:
@@ -111,21 +111,21 @@ class GameInfoPlotter:
                 # {0}
                 try:
                     if ply % 2:
-                        eval = -black_eval[-1]
+                        move_eval = -black_eval[-1]
                     else:
-                        eval = white_eval[-1]
+                        move_eval = white_eval[-1]
                 except ValueError:
                     pass
             elif '+M' in comment or '-M' in comment:
                 mate_num = int(comment.split('/')[0].split('M')[1])
-                eval = Mate(mate_num).score(mate_score=32000)
-                eval = (eval if '+M' in comment else -eval) / 100
+                move_eval = Mate(mate_num).score(mate_score=32000)
+                move_eval = (move_eval if '+M' in comment else -move_eval) / 100
             else:
                 # Not {White mates}
                 if '/' in comment:
-                    eval = float(comment.split('/')[0])
+                    move_eval = float(comment.split('/')[0])
 
-        return eval
+        return move_eval
 
     def get_time(self, comment):
         """
@@ -186,16 +186,16 @@ class GameInfoPlotter:
             fmvn = parent_board.fullmove_number
             ply = parent_board.ply()
 
-            eval = self.get_eval(comment, parent_board.turn, ply, y1, y2)
+            move_eval = self.get_eval(comment, parent_board.turn, ply, y1, y2)
             tv = self.get_time(comment)
 
             # Black
             if ply % 2:
                 # Positive eval is good for white while negative eval is good for black.
-                y1.append(-eval)
+                y1.append(-move_eval)
                 t1.append(tv)
             else:
-                y2.append(eval)
+                y2.append(move_eval)
                 x.append(fmvn)
 
                 t2.append(tv)
