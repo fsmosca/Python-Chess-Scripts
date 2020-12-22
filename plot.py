@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.14.5'
+__version__ = 'v0.15.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -89,6 +89,9 @@ class GameInfoPlotter:
             black_eval: List[float],
             white_eval: List[float]
     ) -> float:
+        """
+        Returns move_eval with SPOV in pawn unit.
+        """
         move_eval = 0.0
 
         if 'book' in comment.lower():
@@ -103,9 +106,12 @@ class GameInfoPlotter:
 
         if self.tcec:
             value = comment.split('wv=')[1].split(',')[0]
-            # Todo: Get more accurate eval for mate scores.
             if 'M' in value:
-                move_eval = 1000
+                mate_num = int(value.split('M')[1])
+
+                # Todo: Get mate score of Lc0.
+                move_eval = Mate(mate_num).score(mate_score=32000) / 100
+
                 move_eval = move_eval if turn else -move_eval
             else:
                 move_eval = float(comment.split('wv=')[1].split(',')[0])
