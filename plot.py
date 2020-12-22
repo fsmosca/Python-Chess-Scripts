@@ -177,7 +177,7 @@ class GameInfoPlotter:
         bp = game.headers['Black']
         res = game.headers['Result']
 
-        move_num, y1, y2, b_time, w_time = [], [], [], [], []
+        move_num, b_eval, w_eval, b_time, w_time = [], [], [], [], []
         for node in game.mainline():
             board = node.board()
             parent_node = node.parent
@@ -186,16 +186,16 @@ class GameInfoPlotter:
             fmvn = parent_board.fullmove_number
             ply = parent_board.ply()
 
-            move_eval = self.get_eval(comment, parent_board.turn, ply, y1, y2)
+            move_eval = self.get_eval(comment, parent_board.turn, ply, b_eval, w_eval)
             time_elapse_sec = self.get_time(comment)
 
             # Black
             if ply % 2:
                 # Positive eval is good for white while negative eval is good for black.
-                y1.append(-move_eval)
+                b_eval.append(-move_eval)
                 b_time.append(time_elapse_sec)
             else:
-                y2.append(move_eval)
+                w_eval.append(move_eval)
                 move_num.append(fmvn)
 
                 w_time.append(time_elapse_sec)
@@ -208,16 +208,16 @@ class GameInfoPlotter:
         plt.subplots_adjust(top=0.84, hspace=0.3)
 
         # Array should have the same size.
-        if len(move_num) > len(y1):
-            y1.append(y1[len(y1)-1])
+        if len(move_num) > len(b_eval):
+            b_eval.append(b_eval[len(b_eval)-1])
             b_time.append(0)
-        if len(move_num) > len(y2):
-            y2.append(y2[len(y2)-1])
+        if len(move_num) > len(w_eval):
+            w_eval.append(w_eval[len(w_eval)-1])
             w_time.append(0)
 
         line_width = 1.0
-        ax[0].plot(move_num, y2, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
-        ax[0].plot(move_num, y1, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
+        ax[0].plot(move_num, w_eval, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
+        ax[0].plot(move_num, b_eval, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
 
         ax[1].plot(move_num, w_time, color=self.white_line_color, linewidth=line_width, label=f'{wp}')
         ax[1].plot(move_num, b_time, color=self.black_line_color, linewidth=line_width, label=f'{bp}')
@@ -242,8 +242,8 @@ class GameInfoPlotter:
         ax[0].legend(loc='best')
         ax[1].legend(loc='best')
 
-        miny1, miny2 = min(y1), min(y2)
-        maxy1, maxy2 = max(y1), max(y2)
+        miny1, miny2 = min(b_eval), min(w_eval)
+        maxy1, maxy2 = max(b_eval), max(w_eval)
         miny = min(miny1, miny2)
         maxy = max(maxy1, maxy2)
 
