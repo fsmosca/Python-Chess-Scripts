@@ -9,6 +9,9 @@ Download and install [python](https://www.python.org/downloads/).
 #### Install python-chess
 pip install python-chess
 
+#### Intall matplotlib for plot.py
+pip install matplotlib
+
 
 ### B. Plot
 #### Command line:
