@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.15.0'
+__version__ = 'v0.16.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -99,9 +99,11 @@ class GameInfoPlotter:
 
         if comment == '':
             if ply % 2:
-                move_eval = -black_eval[-1]
+                if len(black_eval):
+                    move_eval = -black_eval[-1]
             else:
-                move_eval = white_eval[-1]
+                if len(white_eval):
+                    move_eval = white_eval[-1]
             return move_eval
 
         if self.tcec:
@@ -125,9 +127,11 @@ class GameInfoPlotter:
                 # {0}
                 try:
                     if ply % 2:
-                        move_eval = -black_eval[-1]
+                        if len(black_eval):
+                            move_eval = -black_eval[-1]
                     else:
-                        move_eval = white_eval[-1]
+                        if len(white_eval):
+                            move_eval = white_eval[-1]
                 except ValueError:
                     pass
             elif '+M' in comment or '-M' in comment:
