@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.17.0'
+__version__ = 'v0.18.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -70,8 +70,16 @@ class GameInfoPlotter:
     def get_tick_spacing(self, miny, maxy):
         tick_spacing = 0.05
         y_abs = max(abs(miny), abs(maxy))
+        eval_abs = max(abs(self.min_eval), abs(self.max_eval))
 
-        if y_abs >= 4:
+        # Show y-tick spacing based on the min of eval and user eval limit.
+        y_abs = min(eval_abs, y_abs)
+
+        if y_abs >= 200:
+            tick_spacing = 20
+        elif y_abs >= 50:
+            tick_spacing = 5
+        elif y_abs >= 4:
             tick_spacing = 1
         elif y_abs >= 2:
             tick_spacing = 0.5
@@ -123,7 +131,13 @@ class GameInfoPlotter:
         elif self.lichess:
             # Lichess eval is wpov.
             # [%eval -1.49] [%clk 0:15:10]
-            move_eval = float(comment.split('%eval')[1].strip().split(']')[0])
+            # { [%eval #2] [%clk 0:13:18] }
+            split_eval = comment.split('%eval ')[1].split(']')[0]
+            if '#' in split_eval:
+                mate_num = int(split_eval.split('#')[1])
+                move_eval = Mate(mate_num).score(mate_score=32000) / 100
+            else:
+                move_eval = float(split_eval)
             move_eval = spov_score(move_eval, turn)
 
         # Cutechess
