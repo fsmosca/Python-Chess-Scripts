@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.16.0'
+__version__ = 'v0.17.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -43,7 +43,7 @@ PLOT_BG_COLOR = '0.4'  # Gray shades, 0 to 1, 0 is darker.
 
 class GameInfoPlotter:
     def __init__(self, input_pgn, width=6, height=4, min_eval_limit=-10,
-                 max_eval_limit=10, dpi=200, tcec=False,
+                 max_eval_limit=10, dpi=200, tcec=False, lichess=False,
                  plot_eval_bg_color=PLOT_BG_COLOR,
                  plot_time_bg_color=PLOT_BG_COLOR,
                  white_line_color='white',
@@ -57,6 +57,7 @@ class GameInfoPlotter:
         self.max_eval = max_eval_limit
         self.dpi = dpi
         self.tcec = tcec
+        self.lichess = lichess
         self.plot_eval_bg_color = plot_eval_bg_color
         self.plot_time_bg_color = plot_time_bg_color
         self.white_line_color = white_line_color
@@ -119,6 +120,12 @@ class GameInfoPlotter:
                 move_eval = float(comment.split('wv=')[1].split(',')[0])
                 move_eval = move_eval if turn else -move_eval
 
+        elif self.lichess:
+            # Lichess eval is wpov.
+            # [%eval -1.49] [%clk 0:15:10]
+            move_eval = float(comment.split('%eval')[1].strip().split(']')[0])
+            move_eval = spov_score(move_eval, turn)
+
         # Cutechess
         else:
             # No eval/depth comment, just time.
@@ -153,6 +160,7 @@ class GameInfoPlotter:
         {0}
         {0.001}
         {0.002}
+        { [%eval -1.49] [%clk 0:15:10] }, from lichess, wpov_score
         """
         elapse_sec = 0.0
 
@@ -162,12 +170,21 @@ class GameInfoPlotter:
         if comment == '':
             return elapse_sec
 
-        # If pgn file file is from TCEC.
+        # If pgn file is from TCEC.
         if self.tcec:
             elapse_sec = int(comment.split('mt=')[1].split(',')[0])
             elapse_sec = elapse_sec // 1000
 
-        # Cutechess
+        elif self.lichess:
+            # h:mm:sec
+            # [%eval -1.49] [%clk 0:15:10]
+            split_time = comment.split('%clk')[1].split(']')[0].strip()  # 0:15:10
+            elapse_sec = int(split_time.split(':')[2])
+            elapse_min = int(split_time.split(':')[1])
+            elapse_hr = int(split_time.split(':')[0])
+            elapse_sec = elapse_sec + 60*elapse_min + 60*60*elapse_hr
+
+        # Cutechess, winboard
         else:
             # One part split, {0} or {0.001}, assume it is time.
             if len(comment.split()) == 1:
@@ -317,6 +334,10 @@ class GameInfoPlotter:
         print(f'Done {self.input_pgn}, Elapse (sec): {time.perf_counter() - start_time:0.3f}')
 
 
+def spov_score(wpov_score, stm):
+    return wpov_score if stm else -wpov_score
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog='%s %s' % (__script_name__, __version__),
@@ -370,6 +391,9 @@ def main():
     parser.add_argument('--tcec',
                         action='store_true',
                         help='Use this flag if pgn is from tcec, tested on s19-sf.')
+    parser.add_argument('--lichess',
+                        action='store_true',
+                        help='Use this flag if pgn is from lichess.')
     parser.add_argument('-v', '--version', action='version',
                         version=f'{__version__}')
 
@@ -383,6 +407,7 @@ def main():
         max_eval_limit=args.max_eval_limit,
         dpi=args.dpi,
         tcec=args.tcec,
+        lichess=args.lichess,
         plot_eval_bg_color=args.plot_eval_bg_color,
         plot_time_bg_color=args.plot_time_bg_color,
         white_line_color=args.white_line_color,
