@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.18.0'
+__version__ = 'v0.19.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -211,7 +211,20 @@ class GameInfoPlotter:
             else:
                 # Not {White mates}
                 if '/' in comment:
-                    elapse_sec = float(comment.split()[1].split('s')[0])
+                    # winboard 2:14 or 15
+                    if ':' in comment:
+                        split_time = comment.split()[1].strip()
+                        if comment.count(':') == 2:
+                            elapse_sec = int(split_time.split(':')[2])
+                            elapse_min = int(split_time.split(':')[1])
+                            elapse_hr = int(split_time.split(':')[0])
+                            elapse_sec = elapse_sec + 60*elapse_min + 60*60*elapse_hr
+                        else:
+                            elapse_sec = int(split_time.split(':')[1])
+                            elapse_min = int(split_time.split(':')[0])
+                            elapse_sec = elapse_sec + 60*elapse_min
+                    else:
+                        elapse_sec = float(comment.split()[1].split('s')[0])
 
         return elapse_sec
 
