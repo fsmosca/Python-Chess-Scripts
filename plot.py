@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.19.0'
+__version__ = 'v0.20.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -224,7 +224,12 @@ class GameInfoPlotter:
                             elapse_min = int(split_time.split(':')[0])
                             elapse_sec = elapse_sec + 60*elapse_min
                     else:
-                        elapse_sec = float(comment.split()[1].split('s')[0])
+                        split_time = comment.split()[1].split('s')[0]
+                        try:
+                            elapse_sec = float(split_time)
+                        # +0.00/1 Draw by repetition
+                        except ValueError:
+                            elapse_sec = 0
 
         return elapse_sec
 
