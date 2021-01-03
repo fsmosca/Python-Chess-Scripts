@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.21.0'
+__version__ = 'v0.22.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -92,6 +92,7 @@ class GameInfoPlotter:
 
     def get_eval(
             self,
+            board,
             comment: str,
             turn: bool,
             ply: int,
@@ -132,13 +133,23 @@ class GameInfoPlotter:
             # Lichess eval is wpov.
             # [%eval -1.49] [%clk 0:15:10]
             # { [%eval #2] [%clk 0:13:18] }
-            split_eval = comment.split('%eval ')[1].split(']')[0]
-            if '#' in split_eval:
-                mate_num = int(split_eval.split('#')[1])
-                move_eval = Mate(mate_num).score(mate_score=32000) / 100
+            # [%clk 0:00:03], comment without eval
+            if '[%eval ' in comment:
+                split_eval = comment.split('%eval ')[1].split(']')[0]
+                if '#' in split_eval:
+                    mate_num = int(split_eval.split('#')[1])
+                    move_eval = Mate(mate_num).score(mate_score=32000) / 100
+                else:
+                    move_eval = float(split_eval)
+                move_eval = spov_score(move_eval, turn)
             else:
-                move_eval = float(split_eval)
-            move_eval = spov_score(move_eval, turn)
+                # [%clk 0:00:03], comment without eval, game is over
+                if board.is_check():
+                    move_eval = Mate(0).score(mate_score=32000) / 100
+                elif board.is_game_over():
+                    move_eval = 0.0
+                else:
+                    move_eval = 0.0
 
         # Cutechess
         else:
@@ -257,7 +268,7 @@ class GameInfoPlotter:
             fmvn = parent_board.fullmove_number
             ply = parent_board.ply()
 
-            move_eval = self.get_eval(comment, parent_board.turn, ply, b_eval, w_eval)
+            move_eval = self.get_eval(board, comment, parent_board.turn, ply, b_eval, w_eval)
             time_elapse_sec = self.get_time(comment)
 
             # Black
