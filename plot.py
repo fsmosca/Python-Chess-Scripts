@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.23.0'
+__version__ = 'v0.24.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'Eval and Time Game Plotter'
@@ -216,29 +216,24 @@ class GameInfoPlotter:
                 try:
                     elapse_sec = float(value)
                 except ValueError:
-                    pass
-            # Two parts split, {+13.30/12 0.020s}, eval/depth time
-            else:
-                # Not {White mates}
-                if '/' in comment:
-                    # winboard 2:14 or 15
-                    if ':' in comment:
-                        split_time = comment.split()[1].strip()
-                        if comment.count(':') == 2:
-                            elapse_sec = int(split_time.split(':')[2])
-                            elapse_min = int(split_time.split(':')[1])
-                            elapse_hr = int(split_time.split(':')[0])
-                            elapse_sec = elapse_sec + 60*elapse_min + 60*60*elapse_hr
-                        else:
-                            # {+1000.01/127 Xboard adjudication: Checkmate} by winboard
-                            if 'adjudication' in comment.lower() or 'xboard' in comment.lower():
-                                elapse_sec = 0
-                            else:
-                                elapse_sec = int(split_time.split(':')[1])
-                                elapse_min = int(split_time.split(':')[0])
-                                elapse_sec = elapse_sec + 60*elapse_min
+                    # +1.02/25
+                    pass  # returns 0.0
+            # Two or more parts split, {+13.30/12 0.020s} or {+13.30/12 0.020s xboard}
+            elif len(comment.split()) > 1:
+                # Take the 2nd part
+                time_comment = comment.split()[1].strip()
+
+                # {+1000.01/127 Xboard adjudication: Checkmate} by winboard
+                if any(s in time_comment.lower() for s in ['adjudication', 'xboard', 'claim', 'draw', 'repetition']):
+                    elapse_sec = 0
+                else:
+                    # Ignore hr for now, 2:22, that is min:sec
+                    if ':' in time_comment:
+                        elapse_sec = int(time_comment.split(':')[1])
+                        elapse_min = int(time_comment.split(':')[0])
+                        elapse_sec = elapse_sec + 60 * elapse_min
                     else:
-                        split_time = comment.split()[1].split('s')[0]
+                        split_time = comment.split()[1].split('s')[0]  # remove s if there is
                         try:
                             elapse_sec = float(split_time)
                         # +0.00/1 Draw by repetition
