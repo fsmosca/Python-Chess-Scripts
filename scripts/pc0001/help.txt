@@ -1,0 +1,14 @@
+usage: pc_0001 v0.1.0 [-h] --input INPUT [--output OUTPUT]
+                      [--no-nag-ply NO_NAG_PLY]
+
+Remove nags by ply.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --input INPUT         Input filename (required).
+  --output OUTPUT       Output filename (not required).
+  --no-nag-ply NO_NAG_PLY
+                        Do not write nag if game ply is below this option
+                        value. Default=1.
+
+pc_0001 v0.1.0
