@@ -52,3 +52,7 @@ pgngraph v0.24.0
 ### Command line
 `python pgn_graph.py --input mygame.pgn`
 
+### Sample output
+
+![plot1](https://i.imgur.com/LAUSTQt.png)
+
