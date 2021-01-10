@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.1.0'
+__version__ = 'v0.2.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'evalswing'
@@ -38,11 +38,13 @@ import pandas as pd
 
 
 class EvalSwing:
-    def __init__(self, input_pgn, min_depth=1, tcec=False, lichess=False):
+    def __init__(self, input_pgn, min_depth=1, tcec=False, lichess=False,
+                 spov=True):
         self.input_pgn = input_pgn
         self.min_depth = min_depth
         self.tcec = tcec
         self.lichess = lichess
+        self.spov = spov
 
         self.num = []
         self.wnames = []
@@ -82,13 +84,11 @@ class EvalSwing:
         if comment == '':
             if ply % 2:
                 if len(black_eval):
-                    if black_eval[-1] is not None:
-                        move_eval = -black_eval[-1]
-                    else:
-                        move_eval = black_eval[-1]
+                    move_eval = black_eval[-1]
             else:
                 if len(white_eval):
                     move_eval = white_eval[-1]
+
             return move_eval
 
         if self.tcec:
@@ -130,7 +130,7 @@ class EvalSwing:
                 else:
                     move_eval = 0.0
 
-        # Cutechess
+        # Cutechess, winboard, shredder
         else:
             if len(comment.split()) == 1:
                 # No eval/depth comment, just time.
@@ -138,10 +138,14 @@ class EvalSwing:
                     move_eval = None  # Set to zero if no history.
                     if ply % 2:
                         if len(black_eval):
-                            move_eval = -black_eval[-1]
+                            move_eval = black_eval[-1]
+                            if move_eval is not None:
+                                move_eval = spov_score(move_eval, turn)
                     else:
                         if len(white_eval):
                             move_eval = white_eval[-1]
+                            if move_eval is not None:
+                                move_eval = spov_score(move_eval, turn)
                 else:
                     depth = int(comment.split()[0].split('/')[1])
                     if depth >= self.min_depth:
@@ -160,6 +164,9 @@ class EvalSwing:
                         raise
                     if depth >= self.min_depth:
                         move_eval = float(comment.split('/')[0])
+
+            if not self.spov:
+                move_eval = spov_score(move_eval, turn)
 
         return move_eval
 
@@ -195,7 +202,6 @@ class EvalSwing:
             # Side POV
             # Black
             if ply % 2:
-                # Positive eval is good for white while negative eval is good for black.
                 if move_eval is None:
                     b_eval.append(None)
                 else:
@@ -353,16 +359,21 @@ def main():
     parser.add_argument('--lichess',
                         action='store_true',
                         help='Use this flag if pgn is from lichess.')
+    parser.add_argument('--wpov',
+                        action='store_true',
+                        help='Use this flag if scores in the game are in wpov.')
     parser.add_argument('-v', '--version', action='version',
                         version=f'{__version__}')
 
     args = parser.parse_args()
+    spov = False if args.wpov else True
 
     a = EvalSwing(
         args.input,
         min_depth = args.min_depth,
         tcec=args.tcec,
-        lichess=args.lichess)
+        lichess=args.lichess,
+        spov=spov)
 
     a.run()
 
