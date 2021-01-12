@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.2.1'
+__version__ = 'v0.3.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'evalswing'
@@ -35,6 +35,7 @@ from typing import List, Set, Dict, Tuple, Optional
 import chess.pgn
 from chess.engine import Mate
 import pandas as pd
+import numpy as np
 
 
 class EvalSwing:
@@ -228,7 +229,7 @@ class EvalSwing:
                 minv = 0
 
             self.w_min_eval.append(minv)
-            self.w_max_eval.append('-')
+            self.w_max_eval.append(None)
 
             mimin = self.move_index(w_eval, minv, is_min=True) + 1
             self.w_mi_min.append(mimin)
@@ -241,7 +242,7 @@ class EvalSwing:
                 maxv = 0
 
             self.w_max_eval.append(maxv)
-            self.w_min_eval.append('-')
+            self.w_min_eval.append(None)
 
             mimax = self.move_index(w_eval, maxv, is_min=False) + 1
             self.w_mi_min.append('-')
@@ -273,7 +274,7 @@ class EvalSwing:
                 minv = 0
 
             self.b_min_eval.append(minv)
-            self.b_max_eval.append('-')
+            self.b_max_eval.append(None)
 
             mimin = self.move_index(b_eval, minv, is_min=True) + 1
             self.b_mi_min.append(mimin)
@@ -286,7 +287,7 @@ class EvalSwing:
                 maxv = 0
 
             self.b_max_eval.append(maxv)
-            self.b_min_eval.append('-')
+            self.b_min_eval.append(None)
 
             mimax = self.move_index(b_eval, maxv, is_min=False) + 1
             self.b_mi_min.append('-')
