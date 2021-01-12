@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.2.0'
+__version__ = 'v0.2.1'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'evalswing'
@@ -72,7 +72,7 @@ class EvalSwing:
             ply: int,
             black_eval: List[float],
             white_eval: List[float]
-    ) -> float:
+    ) -> Optional[float]:
         """
         Returns move_eval with SPOV in pawn unit.
         """
@@ -168,7 +168,12 @@ class EvalSwing:
             if not self.spov:
                 move_eval = spov_score(move_eval, turn)
 
-        return move_eval
+        if move_eval is None:
+            return None
+        if move_eval == 0:
+            return 0.00
+
+        return float(move_eval)
 
     def move_index(self, values, val, is_min=True):
         for i, n in enumerate(values):
