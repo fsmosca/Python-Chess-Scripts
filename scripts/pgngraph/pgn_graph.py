@@ -16,7 +16,7 @@ Usage:
 """
 
 
-__version__ = 'v0.24.0'
+__version__ = 'v0.25.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'pgngraph'
@@ -37,8 +37,9 @@ PLOT_BG_COLOR = '0.4'  # Gray shades, 0 to 1, 0 is darker.
 
 
 class GameInfoPlotter:
-    def __init__(self, input_pgn, width=6, height=4, min_eval_limit=-10,
-                 max_eval_limit=10, dpi=200, tcec=False, lichess=False,
+    def __init__(self, input_pgn, plot_file, width=6, height=4,
+                 min_eval_limit=-10, max_eval_limit=10,
+                 dpi=200, tcec=False, lichess=False,
                  plot_eval_bg_color=PLOT_BG_COLOR,
                  plot_time_bg_color=PLOT_BG_COLOR,
                  white_line_color='white',
@@ -46,6 +47,7 @@ class GameInfoPlotter:
                  min_move_limit=None,
                  max_move_limit=None):
         self.input_pgn = input_pgn
+        self.plot_file = plot_file
         self.fig_width = width
         self.fig_height = height
         self.min_eval = min_eval_limit
@@ -237,7 +239,7 @@ class GameInfoPlotter:
 
         return elapse_sec
 
-    def plotter(self, game, outputfn):
+    def plotter(self, game, outputfn, game_num):
         """
         Read game get eval in the move comment and plot it.
         """
@@ -274,7 +276,7 @@ class GameInfoPlotter:
         fig, ax = plt.subplots(2, sharex=True, figsize=(self.fig_width, self.fig_height))
 
         plt.text(x=0.5, y=0.94, s=f"{wp} vs {bp}", fontsize=8, ha="center", transform=fig.transFigure)
-        plt.text(x=0.5, y=0.91, s=f"{ev}, {da}, Round: {rd}, {res}", fontsize=6, ha="center", transform=fig.transFigure)
+        plt.text(x=0.5, y=0.91, s=f"{ev}, {da}, Round: {rd}, ({game_num}), {res}", fontsize=6, ha="center", transform=fig.transFigure)
 
         plt.subplots_adjust(top=0.84, hspace=0.3)
 
@@ -350,9 +352,27 @@ class GameInfoPlotter:
         plt.close()
 
 
+    def plot_game_num(self):
+        """
+        Read plot file and record the games to be plotted.
+        """
+        plot_games = []
+
+        if self.plot_file is None:
+            return plot_games
+
+        with open(self.plot_file) as f:
+            for lines in f:
+                line = lines.strip()
+                plot_games.append(int(line))
+
+        return plot_games
+
     def run(self):
         start_time = time.perf_counter()
         cnt = 0
+
+        game_num_to_plot = self.plot_game_num()
 
         with open(self.input_pgn) as pgn:
             while True:
@@ -361,11 +381,16 @@ class GameInfoPlotter:
                     break
 
                 cnt += 1
+
+                if self.plot_file is not None:
+                    if cnt not in game_num_to_plot:
+                        continue
+
                 output = f'{self.input_pgn[0:-4]}_{cnt}.png'
 
                 print(f'game: {cnt}')
 
-                self.plotter(game, output)
+                self.plotter(game, output, cnt)
 
         print(f'Done {self.input_pgn}, Elapse (sec): {time.perf_counter() - start_time:0.3f}')
 
@@ -430,13 +455,15 @@ def main():
     parser.add_argument('--lichess',
                         action='store_true',
                         help='Use this flag if pgn is from lichess.')
+    parser.add_argument('--plot-file', required=False, type=str,
+                        help='Input filename where specific game number will be plotted (not required).')
     parser.add_argument('-v', '--version', action='version',
                         version=f'{__version__}')
 
     args = parser.parse_args()
 
     a = GameInfoPlotter(
-        args.input,
+        args.input, args.plot_file,
         width=args.figure_size_width,
         height=args.figure_size_height,
         min_eval_limit=args.min_eval_limit,
