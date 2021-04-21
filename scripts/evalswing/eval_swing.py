@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.3.0'
+__version__ = 'v0.3.1'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'evalswing'
