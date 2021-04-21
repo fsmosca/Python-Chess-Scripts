@@ -1,6 +1,13 @@
 # Python Chess Scripts
 Tools to process things using python chess library. See scripts folder.
 
+### Setup
+* Install python 3.8 or newer
+* Install python-chess
+  * pip intall python-chess
+* intall matplotlib for plotting
+  * pip install matplotlib 
+
 ### Folders
 
 * [evalswing](https://github.com/fsmosca/Python-Chess-Scripts/tree/main/scripts/evalswing)
