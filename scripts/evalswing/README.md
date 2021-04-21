@@ -7,10 +7,7 @@ Read pgn and tabulate relevant minimum and maximum scores.
 
 * Intall dependent modules  
   * pip install chess
-  * pip install pandas  
-     On windows replace numpy version.  
-     * pip uninstall numpy
-     * pip install numpy==1.19.3
+  * pip install pandas
 
 ### Help
 
