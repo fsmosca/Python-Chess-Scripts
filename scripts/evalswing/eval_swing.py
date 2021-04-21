@@ -40,11 +40,12 @@ import numpy as np
 
 class EvalSwing:
     def __init__(self, input_pgn, min_depth=1, tcec=False, lichess=False,
-                 spov=True):
+                 chessbase=False, spov=True):
         self.input_pgn = input_pgn
         self.min_depth = min_depth
         self.tcec = tcec
         self.lichess = lichess
+        self.chessbase=chessbase
         self.spov = spov
 
         self.num = []
@@ -130,6 +131,15 @@ class EvalSwing:
                     move_eval = 0.0
                 else:
                     move_eval = 0.0
+
+        elif self.chessbase:
+            # 15. exf6 {[%eval 8,38] [%emt 0:00:09]}
+            # 8 in cp, depth=38
+            # cp score is wpov, we need to convert it to spov.
+            if '[%eval ' in comment:
+                split_eval = comment.split('%eval ')[1].split()[0].split(']')[0].split(',')[0]
+                move_eval = float(int(split_eval)/100)
+                move_eval = spov_score(move_eval, turn)
 
         # Cutechess, winboard, shredder
         else:
@@ -365,6 +375,9 @@ def main():
     parser.add_argument('--lichess',
                         action='store_true',
                         help='Use this flag if pgn is from lichess.')
+    parser.add_argument('--chessbase',
+                        action='store_true',
+                        help='Use this flag if pgn is from chessbase.')
     parser.add_argument('--wpov',
                         action='store_true',
                         help='Use this flag if scores in the game are in wpov.')
@@ -379,6 +392,7 @@ def main():
         min_depth = args.min_depth,
         tcec=args.tcec,
         lichess=args.lichess,
+        chessbase=args.chessbase,
         spov=spov)
 
     a.run()
