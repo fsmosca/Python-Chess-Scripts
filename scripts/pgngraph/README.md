@@ -8,9 +8,6 @@ Read pgn and plot eval and time in each game.
 * Intall dependent modules  
   * pip install chess
   * pip install matplotlib  
-     On windows replace numpy version.  
-     * pip uninstall numpy
-     * pip install numpy==1.19.3
 
 ### Help
 
