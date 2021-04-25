@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.3.1'
+__version__ = 'v0.4.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'evalswing'
@@ -31,22 +31,24 @@ __goal__ = 'Read pgn file and print max/min eval of each engine per game.'
 import argparse
 import time
 from typing import List, Set, Dict, Tuple, Optional
+from pathlib import Path
 
 import chess.pgn
 from chess.engine import Mate
 import pandas as pd
-import numpy as np
 
 
 class EvalSwing:
     def __init__(self, input_pgn, min_depth=1, tcec=False, lichess=False,
-                 chessbase=False, spov=True):
+                 chessbase=False, spov=True, save_game=False):
         self.input_pgn = input_pgn
         self.min_depth = min_depth
         self.tcec = tcec
         self.lichess = lichess
         self.chessbase=chessbase
         self.spov = spov
+        self.save_game = save_game
+        self.output_fn = f'out_{Path(input_pgn).name}'
 
         self.num = []
         self.wnames = []
@@ -193,13 +195,17 @@ class EvalSwing:
 
         return -1
 
-    def evaluate(self, game, outputfn, cnt):
+    def evaluate(self, game, cnt):
         """
         Read game get eval in the move comment and plot it.
         """
-        ev = game.headers['Event']
-        da = game.headers['Date']
-        rd = game.headers['Round']
+        if self.save_game:
+            my_game = chess.pgn.Game()
+            my_node = my_game
+
+            for k, v in game.headers.items():
+                my_game.headers[k] = v
+
         wp = game.headers['White']
         bp = game.headers['Black']
         res = game.headers['Result']
@@ -212,6 +218,10 @@ class EvalSwing:
             comment = node.comment
             fmvn = parent_board.fullmove_number
             ply = parent_board.ply()
+
+            if self.save_game:
+                my_node = my_node.add_main_variation(
+                    node.move, comment=node.comment)
 
             move_eval = self.get_eval(board, comment, parent_board.turn, ply, b_eval, w_eval)
 
@@ -329,6 +339,15 @@ class EvalSwing:
                 'BMaxMove': self.b_mi_max, 'BMaxEval': self.b_max_eval, 'BMinMove': self.b_mi_min, 'BMinEval': self.b_min_eval}
         df = pd.DataFrame(data)
 
+        if self.save_game:
+            my_game.headers['WhiteMaxEval'] = str(max(self.w_max_eval))
+            my_game.headers['BlackMaxEval'] = str(max(self.b_max_eval))
+            my_game.headers['WhiteMinEval'] = str(min(self.w_min_eval))
+            my_game.headers['BlackMinEval'] = str(min(self.b_min_eval))
+
+            with open(self.output_fn, 'a') as w:
+                w.write(f'{my_game}\n\n')
+
         return df
 
     def run(self):
@@ -343,11 +362,10 @@ class EvalSwing:
                     break
 
                 cnt += 1
-                output = f'{self.input_pgn[0:-4]}_{cnt}.png'
 
                 print(f'game: {cnt}')
 
-                df = self.evaluate(game, output, cnt)
+                df = self.evaluate(game, cnt)
 
         if df is not None:
             print(df.to_string(index=False))
@@ -381,6 +399,9 @@ def main():
     parser.add_argument('--wpov',
                         action='store_true',
                         help='Use this flag if scores in the game are in wpov.')
+    parser.add_argument('--save-game',
+                        action='store_true',
+                        help='Use this flag to save the game in pgn with min/max eval placed in header.')
     parser.add_argument('-v', '--version', action='version',
                         version=f'{__version__}')
 
@@ -393,7 +414,8 @@ def main():
         tcec=args.tcec,
         lichess=args.lichess,
         chessbase=args.chessbase,
-        spov=spov)
+        spov=spov,
+        save_game=args.save_game)
 
     a.run()
 
