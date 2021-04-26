@@ -21,7 +21,7 @@ Usage:
 """
 
 
-__version__ = 'v0.4.0'
+__version__ = 'v0.5.0'
 __author__ = 'fsmosca'
 __credits__ = ['rwbc']
 __script_name__ = 'evalswing'
@@ -340,10 +340,10 @@ class EvalSwing:
         df = pd.DataFrame(data)
 
         if self.save_game:
-            my_game.headers['WhiteMaxEval'] = str(max(self.w_max_eval))
-            my_game.headers['BlackMaxEval'] = str(max(self.b_max_eval))
-            my_game.headers['WhiteMinEval'] = str(min(self.w_min_eval))
-            my_game.headers['BlackMinEval'] = str(min(self.b_min_eval))
+            my_game.headers['WhiteMaxEval'] = str(max([i for i in w_eval if i is not None]))
+            my_game.headers['BlackMaxEval'] = str(max([i for i in b_eval if i is not None]))
+            my_game.headers['WhiteMinEval'] = str(min([i for i in w_eval if i is not None]))
+            my_game.headers['BlackMinEval'] = str(min([i for i in b_eval if i is not None]))
 
             with open(self.output_fn, 'a') as w:
                 w.write(f'{my_game}\n\n')
